@@ -18,16 +18,14 @@ main() {
         auth="-n $USER:$PASS"
     fi
 
-    inotifywait --event modify --event create --include "$pf_file" "$pf_path" |
-    while read -r directory action file; do
-        if [ "$file" = "port.dat" ]; then
-            [ -r "$port_file" ] && port=$(cat "$port_file")
-            if [ $oldport -ne $port ]; then
-                echo "Setting Transmission port to ($port)."
-                transmission-remote $auth -p $port
-                oldport=$port
-            fi
+    while true; do
+        [ -r "$port_file" ] && port=$(cat "$port_file")
+        if [ $oldport -ne $port ]; then
+            echo "Setting Transmission port to ($port)."
+            transmission-remote $auth -p $port
+            oldport=$port
         fi
+        inotifywait --event modify --event create --include "$pf_file" "$pf_path"
     done
 }
 
