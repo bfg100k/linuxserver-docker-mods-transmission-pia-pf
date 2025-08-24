@@ -2,29 +2,34 @@
 
 trap 'exit 0' SIGTERM
 
-local oldport=0
-local port=0
+main() {
+    local oldport=0
+    local port=0
 
-local port_file="$PORT_FILE"
-if [ -z "$port_file" ]; then
-    port_file="/pia-shared/port.dat"
-fi
-local pf_path="$(dirname "$port_file")"
-local pf_file="${port_file##*/}"
-
-local auth=""
-if [ -n "$USER" ] || [ -n "$PASS" ]; then
-    auth="-n $USER:$PASS"
-fi
-
-inotifywait --event modify --event create --include "$pf_file" "$pf_path" |
-while read -r directory action file; do
-    if [ "$file" = "port.dat" ]; then
-        [ -r "$port_file" ] && port=$(cat "$port_file")
-        if [ $oldport -ne $port ]; then
-            echo "Setting Transmission port to ($port)."
-            transmission-remote $auth -p $port
-            oldport=$port
-        fi
+    local port_file="$PORT_FILE"
+    if [ -z "$port_file" ]; then
+        port_file="/pia-shared/port.dat"
     fi
-done
+    local pf_path="$(dirname "$port_file")"
+    local pf_file="${port_file##*/}"
+
+    local auth=""
+    if [ -n "$USER" ] || [ -n "$PASS" ]; then
+        auth="-n $USER:$PASS"
+    fi
+
+    inotifywait --event modify --event create --include "$pf_file" "$pf_path" |
+    while read -r directory action file; do
+        if [ "$file" = "port.dat" ]; then
+            [ -r "$port_file" ] && port=$(cat "$port_file")
+            if [ $oldport -ne $port ]; then
+                echo "Setting Transmission port to ($port)."
+                transmission-remote $auth -p $port
+                oldport=$port
+            fi
+        fi
+    done
+}
+
+main "$@"
+exit $?

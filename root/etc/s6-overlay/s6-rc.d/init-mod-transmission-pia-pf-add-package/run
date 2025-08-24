@@ -2,7 +2,7 @@
 
 if ! command -v inotifywait; then
     echo "**** Adding inotify-tools and its deps to package install lists ****"
-    echo "inotify-tools" >> /mod-pip-packages-to-install.list
+    echo "inotify-tools" >> /mod-repo-packages-to-install.list
 else
     echo "**** inotify-tools already installed, skipping ****"
 fi
