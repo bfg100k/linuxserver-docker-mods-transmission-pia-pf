@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap 'exit 0' SIGTERM
+trap 'echo "SIGTERM received. Exiting.";exit 0' SIGTERM
 
 main() {
     local oldport=0
